@@ -4,6 +4,9 @@ from requests.exceptions import HTTPError
 import typing
 import time
 import json
+# import ipdb # this is used for debugging in atom editor, ipdb=IPython-enabled Python Debugger
+
+
 # from random_word import RandomWords
 # str = '{"name": "Farid", "lastname":"Zaredar"}'
 # python_object  = json.loads(str)
@@ -76,7 +79,10 @@ class InvertedIndex:
         listOfDocuments:list = []
         for index, wordsOrPharase in enumerate(wordCollection):
             try:
+                documents:dict = {}
+                # ipdb.set_trace() # breakPoint
                 # print(wordsOrPharase)
+
                 # print(str(index))
                 if index == 5:
                     break
@@ -87,7 +93,6 @@ class InvertedIndex:
                 # documents.update({f'doc-{str(self.counter)}': str(result.content)})
                 listOfDocuments.append(documents)
                 self.counter += 1
-                print(self)
                 # print('here and counter :' + str(self.counter))
                 # print(documents["doc" + str(self.counter)])
 
@@ -102,25 +107,28 @@ class InvertedIndex:
     def createInvertedIndex(self, listOfDocuments:list):
         invertedIndex:dict = {}
         counter:int = 1
+        keyList:list = []
 
         for doc in listOfDocuments:
-            print(doc)
-            print()
-            print(len(doc))
+
             docId = doc.keys()
-            print(docId)
-            # docId = docId[0]
-            # print(docId)
-            time.sleep(10.0)
+            keyList = [key for key in docId]
+            docId = keyList[0]
             content = doc[docId]
             tokens = content.split(" ")
+
             for token in tokens:
                 if token not in invertedIndex.keys():
                     invertedIndex[token] = [docId]
                 else:
                     invertedIndex[token].append(docId)
 
+
+        for keys in invertedIndex:
+            invertedIndex[keys] = list(set(invertedIndex[keys]))
+
         print(invertedIndex)
+
 
 if __name__ =='__main__':
     ii = InvertedIndex()
@@ -128,5 +136,4 @@ if __name__ =='__main__':
     wordCollection2 = ii.readWordsFromLocal()
     # completeCollection = ii.searchWikipedia((wordCollection1, wordCollection2))
     listOfDocuments = ii.getWikipediaPage(wordCollection1)
-    print(len(listOfDocuments[0]))
-    # ii.createInvertedIndex(listOfDocuments)
+    ii.createInvertedIndex(listOfDocuments)
