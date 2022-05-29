@@ -56,7 +56,9 @@ class InvertedIndex:
         completeCollection:list = []
         completeCollection = wordCollection1.copy()
         # print(completeCollection)
-        for words in wordCollection1:
+        for index, words in enumerate(wordCollection1):
+            # if index == 5:
+            #     break
             try:
                 result = wikipedia.search(words)
                 for wordOrPharase in result:
@@ -65,7 +67,7 @@ class InvertedIndex:
             except wikipedia.DisambiguationError as e:
                  availableOptions = e.options
                  print(availableOptions)
-                 time.sleep(2.5)
+                 # time.sleep(2.5)
                  for eachOption in availableOptions:
                      completeCollection.append(eachOption)
             except Exception as e:
@@ -81,10 +83,10 @@ class InvertedIndex:
             try:
                 documents:dict = {}
                 # ipdb.set_trace() # breakPoint
-                # print(wordsOrPharase)
+                print(wordsOrPharase)
 
                 # print(str(index))
-                if index == 5:
+                if index == 5: # it takes some hours, in order to reduce execution time decrese it to 10 or 5
                     break
                 result = wikipedia.page(wordsOrPharase, auto_suggest=False)
                 # print({f'doc-{str(self.counter)}': str(result.content)})
@@ -127,13 +129,30 @@ class InvertedIndex:
         for keys in invertedIndex:
             invertedIndex[keys] = list(set(invertedIndex[keys]))
 
-        print(invertedIndex)
+        # print(invertedIndex)
+        return invertedIndex
 
+    def findDocs(self, invertedIndex:dict, query:list):
+        foundDocs:dict = {}
+        for eachQuery in query:
+            try:
+                if invertedIndex[eachQuery]:
+                    # print('here')
+                    foundDocs.update({eachQuery: invertedIndex[eachQuery]})
+                    
+            except Exception as e:
+                print('[-] This element does not exist in inverted index\nMore Details: ' + str(e))
+        return foundDocs
 
 if __name__ =='__main__':
     ii = InvertedIndex()
     wordCollection1 = ii.downloadWords("https://www.mit.edu/~ecprice/wordlist.10000")
+    print('here')
     wordCollection2 = ii.readWordsFromLocal()
+    # the below function takes too much time to be processed if you want to skip it, you can comment it
     # completeCollection = ii.searchWikipedia((wordCollection1, wordCollection2))
+    # if you need a complete collection you need to replace completeCollection instead of wordCollection1
     listOfDocuments = ii.getWikipediaPage(wordCollection1)
-    ii.createInvertedIndex(listOfDocuments)
+    invertedIndex = ii.createInvertedIndex(listOfDocuments)
+    found  = ii.findDocs(invertedIndex, ['A', 'google'])
+    print(found)
